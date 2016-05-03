@@ -30,7 +30,7 @@ void HLTJetMET::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   processName_ = pSet.getParameter<std::string>("HLTProcessName") ;
 
-  edm::ParameterSet myHltParams = pSet.getParameter<edm::ParameterSet>("RunHLTJetMET") ;
+  edm::ParameterSet myHltParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   std::vector<std::string> parameterNames = myHltParams.getParameterNames() ;
   
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
