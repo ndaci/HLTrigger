@@ -567,7 +567,15 @@ void HLTJetMET::analyze(const edm::Handle<reco::PFJetCollection>   & H_HltPfJets
   }
 
   // OFFLINE RECO JETS //ND
-  InitRecoJets(kMaxJet);
+  if(_Debug) std::cout << "%HLTJetMET -- InitRecoJets..." << std::endl;
+  if(_RecoPFJets || _RecoCaloJets) {
+    if(_Debug) std::cout << "%HLTJetMET -- InitRecoJets(" << kMaxJet << ")... " << std::endl;
+    InitRecoJets(kMaxJet);
+    if(_Debug) std::cout << "%HLTJetMET --  ...done!" << std::endl;
+  }
+  else {
+    if(_Debug) std::cout << "%HLTJetMET --  not launched!" << std::endl;
+  }
 
   if(_RecoPFJets) {
 
@@ -604,6 +612,7 @@ void HLTJetMET::analyze(const edm::Handle<reco::PFJetCollection>   & H_HltPfJets
   }
 
   // END COLLECTIONS //                   
+  if(_Debug) std::cout << "%HLTJetMET -- End reading collections" << std::endl;
 
 }
       
@@ -962,23 +971,29 @@ int HLTJetMET::FillRecoCaloJets(uint kMaxJet, const edm::Handle<reco::CaloJetCol
 int HLTJetMET::InitRecoJets(uint kMaxJet)
 {
 
+  if(_Debug) std::cout << "%HLTJetMET::InitRecoJets(" << kMaxJet << ") starts" << std::endl;
+
   _nRecoPfJet = _nRecoPfJetCor = _nRecoCaloJet = _nRecoCaloJetCor = 0;
 
   for(uint i=0 ; i<kMaxJet ; i++) {
 
-    _recoPfJetsPx[i] = _recoPfJetsPy[i] = _recoPfJetsPz[i] = _recoPfJetsPt[i] = _recoPfJetsE[i] = _recoPfJetsEta[i] = _recoPfJetsPhi[i] = _recoPfJetsCEF[i] = 
-      _recoPfJetsCHF[i] = _recoPfJetsElecF[i] = _recoPfJetsPhoF[i] = _recoPfJetsNEF[i] = _recoPfJetsNHF[i] = _recoPfJetsCMF[i] = _recoPfJetsNTOT[i] = _recoPfJetsNCH[i] = 
-      _recoPfJetsSpread[i] = _recoPfJetsArea[i] = -999999 ; 
+    if(_RecoPFJets) {
+      _recoPfJetsPx[i] = _recoPfJetsPy[i] = _recoPfJetsPz[i] = _recoPfJetsPt[i] = _recoPfJetsE[i] = _recoPfJetsEta[i] = _recoPfJetsPhi[i] = _recoPfJetsCEF[i] = 
+	_recoPfJetsCHF[i] = _recoPfJetsElecF[i] = _recoPfJetsPhoF[i] = _recoPfJetsNEF[i] = _recoPfJetsNHF[i] = _recoPfJetsCMF[i] = _recoPfJetsNTOT[i] = _recoPfJetsNCH[i] = 
+	_recoPfJetsSpread[i] = _recoPfJetsArea[i] = -999999 ; 
+    
+      _recoPfJetsCorPx[i] = _recoPfJetsCorPy[i] = _recoPfJetsCorPz[i] = _recoPfJetsCorPt[i] = _recoPfJetsCorE[i] = _recoPfJetsCorEta[i] = _recoPfJetsCorPhi[i] = 
+	_recoPfJetsCorCEF[i] = _recoPfJetsCorCHF[i] = _recoPfJetsCorNEF[i] = _recoPfJetsCorNHF[i] = _recoPfJetsCorCMF[i] = _recoPfJetsCorNTOT[i] = _recoPfJetsCorNCH[i] =
+	_recoPfJetsCorElecF[i] = _recoPfJetsCorPhoF[i] = _recoPfJetsCorSpread[i] = _recoPfJetsCorArea[i] = -999999 ;
+    }
 
-    _recoPfJetsCorPx[i] = _recoPfJetsCorPy[i] = _recoPfJetsCorPz[i] = _recoPfJetsCorPt[i] = _recoPfJetsCorE[i] = _recoPfJetsCorEta[i] = _recoPfJetsCorPhi[i] = 
-      _recoPfJetsCorCEF[i] = _recoPfJetsCorCHF[i] = _recoPfJetsCorNEF[i] = _recoPfJetsCorNHF[i] = _recoPfJetsCorCMF[i] = _recoPfJetsCorNTOT[i] = _recoPfJetsCorNCH[i] =
-      _recoPfJetsCorElecF[i] = _recoPfJetsCorPhoF[i] = _recoPfJetsCorSpread[i] = _recoPfJetsCorArea[i] = -999999 ;
+    if(_RecoCaloJets) {
+      _recoCaloJetsPx[i] = _recoCaloJetsPy[i] = _recoCaloJetsPz[i] = _recoCaloJetsPt[i] = _recoCaloJetsE[i] = _recoCaloJetsEta[i] = _recoCaloJetsPhi[i] = 
+	_recoCaloJetsEF[i] = _recoCaloJetsHF[i] = _recoCaloJetsNTOT[i] = _recoCaloJetsSpread[i] = _recoCaloJetsArea[i] = -999999 ;
 
-    _recoCaloJetsPx[i] = _recoCaloJetsPy[i] = _recoCaloJetsPz[i] = _recoCaloJetsPt[i] = _recoCaloJetsE[i] = _recoCaloJetsEta[i] = _recoCaloJetsPhi[i] = 
-      _recoCaloJetsEF[i] = _recoCaloJetsHF[i] = _recoCaloJetsNTOT[i] = _recoCaloJetsSpread[i] = _recoCaloJetsArea[i] = -999999 ;
-
-    _recoCaloJetsCorPx[i] = _recoCaloJetsCorPy[i] = _recoCaloJetsCorPz[i] = _recoCaloJetsCorPt[i] = _recoCaloJetsCorE[i] = _recoCaloJetsCorEta[i] = 
-      _recoCaloJetsCorPhi[i] = _recoCaloJetsCorEF[i] = _recoCaloJetsCorHF[i] = _recoCaloJetsCorNTOT[i] = _recoCaloJetsCorSpread[i] = _recoCaloJetsCorArea[i] = -999999 ;
+      _recoCaloJetsCorPx[i] = _recoCaloJetsCorPy[i] = _recoCaloJetsCorPz[i] = _recoCaloJetsCorPt[i] = _recoCaloJetsCorE[i] = _recoCaloJetsCorEta[i] = 
+	_recoCaloJetsCorPhi[i] = _recoCaloJetsCorEF[i] = _recoCaloJetsCorHF[i] = _recoCaloJetsCorNTOT[i] = _recoCaloJetsCorSpread[i] = _recoCaloJetsCorArea[i] = -999999 ;
+    }
   }
 
   return 0;
@@ -1234,6 +1249,8 @@ int HLTJetMET::FillPFMHT(const edm::Handle<reco::PFJetCollection>   & H_PFJets,
 int HLTJetMET::FillCaloMHT(const edm::Handle<reco::CaloJetCollection>             & H_CaloJets,
 			 std::string mode)
 {
+
+  if(_Debug) std::cout << "%HLTJetMET::FillCaloMHT() starts." << std::endl;
 
   // utility variables
   TLorentzVector VMHT;
