@@ -52,12 +52,15 @@ typedef std::vector<std::string> MyStrings;
  * \author L. Apanasevich - UIC, P. Bargassa - Rice U.
  */
 
+#ifndef GETPTGREATER
+#define GETPTGREATER
 class GetPtGreater {
 public:
     template <typename T> bool operator () (const T& i, const T& j) {
         return (i.getPt() > j.getPt());
     }
 };
+#endif
 
 class GetPFPtGreater {
 public:
