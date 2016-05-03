@@ -28,7 +28,8 @@ bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> 
 // Boiler-plate constructor definition of an analyzer module:
 //HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
 HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
-  hlt_analysis_(conf, consumesCollector(), *this) {
+  hlt_analysis_(conf, consumesCollector(), *this)
+{
 
   // If your module takes parameters, here is where you would define
   // their names and types, and access them to initialize internal
@@ -67,6 +68,30 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
   */
   pileupInfo_         = edm::InputTag("addPileupInfo");
 
+  // Read HLT collections //ND
+  hltPFJetLabel_       = conf.getParameter<edm::InputTag>("hltPFJetLabel"      );
+  hltPFJetCorrLabel_   = conf.getParameter<edm::InputTag>("hltPFJetCorrLabel"  );
+  hltCaloJetLabel_     = conf.getParameter<edm::InputTag>("hltCaloJetLabel"    );
+  hltCaloJetCorrLabel_ = conf.getParameter<edm::InputTag>("hltCaloJetCorrLabel");
+  //
+  hltPFMETLabel_       = conf.getParameter<edm::InputTag>("hltPFMETLabel");
+  hltPFMHTLabel_       = conf.getParameter<edm::InputTag>("hltPFMHTLabel");
+  hltPFMETNoMuLabel_   = conf.getParameter<edm::InputTag>("hltPFMETNoMuLabel");
+  hltPFMHTNoMuLabel_   = conf.getParameter<edm::InputTag>("hltPFMHTNoMuLabel");
+  hltCaloMETLabel_     = conf.getParameter<edm::InputTag>("hltCaloMETLabel");
+  hltCaloMETCleanLabel_= conf.getParameter<edm::InputTag>("hltCaloMETCleanLabel");
+  hltCaloMHTLabel_     = conf.getParameter<edm::InputTag>("hltCaloMHTLabel");
+
+  // Read Offline collections //ND
+  recoPFJetLabel_       = conf.getParameter<edm::InputTag>("recoPFJetLabel"      );
+  recoPFJetCorrLabel_   = conf.getParameter<edm::InputTag>("recoPFJetCorrLabel"  );
+  recoCaloJetLabel_     = conf.getParameter<edm::InputTag>("recoCaloJetLabel"    );
+  recoCaloJetCorrLabel_ = conf.getParameter<edm::InputTag>("recoCaloJetCorrLabel");
+  //
+  recoPFMETLabel_       = conf.getParameter<edm::InputTag>("recoPFMETLabel");
+  recoCaloMETLabel_     = conf.getParameter<edm::InputTag>("recoCaloMETLabel");
+  recoMuonsLabel_       = conf.getParameter<edm::InputTag>("recoMuonsLabel");
+
   hltresultsToken_ = consumes<edm::TriggerResults>(hltresults_);
   genEventInfoToken_ = consumes<GenEventInfoProduct>(genEventInfo_);
   /*
@@ -95,6 +120,30 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
   simtracksToken_ = consumes<std::vector<SimTrack> >(simhits_);
   simverticesToken_ = consumes<std::vector<SimVertex> >(simhits_);
   pileupInfoToken_ = consumes<std::vector<PileupSummaryInfo> >(pileupInfo_);
+
+  // HLT Collections //ND
+  hltPFJetToken_       = consumes<reco::PFJetCollection  >( hltPFJetLabel_       );
+  hltPFJetCorrToken_   = consumes<reco::PFJetCollection  >( hltPFJetCorrLabel_   );
+  hltCaloJetToken_     = consumes<reco::CaloJetCollection>( hltCaloJetLabel_     );
+  hltCaloJetCorrToken_ = consumes<reco::CaloJetCollection>( hltCaloJetCorrLabel_ );
+  //
+  hltPFMETToken_       = consumes<reco::PFMETCollection  >( hltPFMETLabel_       );
+  hltPFMHTToken_       = consumes<reco::METCollection    >( hltPFMHTLabel_       );
+  hltPFMETNoMuToken_   = consumes<reco::PFMETCollection  >( hltPFMETNoMuLabel_   );
+  hltPFMHTNoMuToken_   = consumes<reco::METCollection    >( hltPFMHTNoMuLabel_   );
+  hltCaloMETToken_     = consumes<reco::CaloMETCollection>( hltCaloMETLabel_     );
+  hltCaloMETCleanToken_= consumes<reco::CaloMETCollection>( hltCaloMETCleanLabel_);
+  hltCaloMHTToken_     = consumes<reco::METCollection    >( hltCaloMHTLabel_     );
+
+  // RECO Collections //ND
+  recoPFJetToken_       = consumes<reco::PFJetCollection  >( recoPFJetLabel_       );
+  recoPFJetCorrToken_   = consumes<reco::PFJetCollection  >( recoPFJetCorrLabel_   );
+  recoCaloJetToken_     = consumes<reco::CaloJetCollection>( recoCaloJetLabel_     );
+  recoCaloJetCorrToken_ = consumes<reco::CaloJetCollection>( recoCaloJetCorrLabel_ );
+  //
+  recoPFMETToken_       = consumes<reco::PFMETCollection  >( recoPFMETLabel_       );
+  recoCaloMETToken_     = consumes<reco::CaloMETCollection>( recoCaloMETLabel_     );
+  recoMuonsToken_       = consumes<reco::MuonCollection   >( recoMuonsLabel_       );
   
   _UseTFileService = conf.getUntrackedParameter<bool>("UseTFileService",false);
 	
@@ -105,6 +154,11 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
   edm::ParameterSet runParameters = conf.getParameter<edm::ParameterSet>("RunParameters");
   _HistName = runParameters.getUntrackedParameter<std::string>("HistogramFile", "test.root");
   _isData = runParameters.getUntrackedParameter<bool>("isData",true);
+  _RecoPFJets   = runParameters.getUntrackedParameter<bool>("RecoPFJets",true);
+  _RecoCaloJets = runParameters.getUntrackedParameter<bool>("RecoCaloJets",true);
+  _RecoPFMET    = runParameters.getUntrackedParameter<bool>("RecoPFMET",true);
+  _RecoCaloMET  = runParameters.getUntrackedParameter<bool>("RecoCaloMET",true);
+  _RecoMuons    = runParameters.getUntrackedParameter<bool>("RecoMuons",true);
 
   // open the tree file and initialize the tree
   if(_UseTFileService){
@@ -119,6 +173,7 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf)  :
 
   // Setup the different analysis
   hlt_analysis_.setup(conf, HltTree);
+  hlt_jetmet_  .setup(conf, HltTree);
   if (!_isData) { mct_analysis_.setup(conf, HltTree); }
   vrt_analysisOffline0_.setup(conf, HltTree, "Offline0");
   evt_header_.setup(consumesCollector(), HltTree);
@@ -146,6 +201,25 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   edm::Handle<std::vector<SimVertex> >              simVertices;
   edm::Handle<reco::VertexCollection>               recoVertexsOffline0; 
   edm::Handle<std::vector< PileupSummaryInfo > >    pupInfo; 
+
+  // Read HLT collections //ND
+  edm::Handle<reco::PFJetCollection>   H_HltPfJets;
+  edm::Handle<reco::PFJetCollection>   H_HltPfJetsCorr;
+  edm::Handle<reco::CaloJetCollection> H_HltCaloJets;
+  edm::Handle<reco::CaloJetCollection> H_HltCaloJetsCorr;
+  edm::Handle<reco::PFMETCollection>   H_HltPFMET   , H_HltPFMETNoMu ;
+  edm::Handle<reco::METCollection>     H_HltPFMHT   , H_HltPFMHTNoMu ;
+  edm::Handle<reco::CaloMETCollection> H_HltCaloMET , H_HltCaloMETClean ;
+  edm::Handle<reco::METCollection>     H_HltCaloMHT ;
+
+  // Read Reco collections //ND
+  edm::Handle<reco::PFJetCollection>   H_RecoPfJets;
+  edm::Handle<reco::PFJetCollection>   H_RecoPfJetsCorr;
+  edm::Handle<reco::CaloJetCollection> H_RecoCaloJets;
+  edm::Handle<reco::CaloJetCollection> H_RecoCaloJetsCorr;
+  edm::Handle<reco::PFMETCollection>   H_RecoPFMET   ;
+  edm::Handle<reco::CaloMETCollection> H_RecoCaloMET ;
+  edm::Handle<reco::MuonCollection>    H_RecoMuons ;
 
   // extract the collections from the event, check their validity and log which are missing
   std::vector<MissingCollectionInfo> missing;
@@ -176,6 +250,40 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   getCollection( iEvent, missing, pupInfo,         pileupInfo_,   pileupInfoToken_,      kPileupInfo );
 
   getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         VertexTagOffline0Token_,     kRecoVerticesOffline0 );
+
+  // Read HLT collections //ND
+  getCollection( iEvent, missing, H_HltPfJets,       hltPFJetLabel_       , hltPFJetToken_       , kHLTjets    );
+  getCollection( iEvent, missing, H_HltPfJetsCorr,   hltPFJetCorrLabel_   , hltPFJetCorrToken_   , kHLTCorjets );
+  getCollection( iEvent, missing, H_HltCaloJets,     hltCaloJetLabel_     , hltCaloJetToken_     , kHLTjets    );
+  getCollection( iEvent, missing, H_HltCaloJetsCorr, hltCaloJetCorrLabel_ , hltCaloJetCorrToken_ , kHLTCorjets );
+  //
+  getCollection( iEvent, missing, H_HltPFMET       , hltPFMETLabel_        , hltPFMETToken_        , kPFMet );
+  getCollection( iEvent, missing, H_HltPFMHT       , hltPFMHTLabel_        , hltPFMHTToken_        , kPFMet );
+  getCollection( iEvent, missing, H_HltPFMETNoMu   , hltPFMETNoMuLabel_    , hltPFMETNoMuToken_    , kPFMet );
+  getCollection( iEvent, missing, H_HltPFMHTNoMu   , hltPFMHTNoMuLabel_    , hltPFMHTNoMuToken_    , kPFMet );
+  getCollection( iEvent, missing, H_HltCaloMET     , hltCaloMETLabel_      , hltCaloMETToken_      , kRecmet );
+  getCollection( iEvent, missing, H_HltCaloMETClean, hltCaloMETCleanLabel_ , hltCaloMETCleanToken_ , kRecmet );
+  getCollection( iEvent, missing, H_HltCaloMHT     , hltCaloMHTLabel_      , hltCaloMHTToken_      , kRecmet );
+
+  // Read Offline collections //ND
+  if(_RecoPFJets) {
+    getCollection( iEvent, missing, H_RecoPfJets,       recoPFJetLabel_       , recoPFJetToken_       , kRecoPFJets );
+    getCollection( iEvent, missing, H_RecoPfJetsCorr,   recoPFJetCorrLabel_   , recoPFJetCorrToken_   , kRecoPFJets );
+  }
+  if(_RecoCaloJets) {
+    getCollection( iEvent, missing, H_RecoCaloJets,     recoCaloJetLabel_     , recoCaloJetToken_     , kRecjets   );
+    getCollection( iEvent, missing, H_RecoCaloJetsCorr, recoCaloJetCorrLabel_ , recoCaloJetCorrToken_ , kRecCorjets );
+  }
+  //
+  if(_RecoPFMET) {
+    getCollection( iEvent, missing, H_RecoPFMET     , recoPFMETLabel_      , recoPFMETToken_        , kPFMet );
+  }
+  if(_RecoCaloMET) {
+    getCollection( iEvent, missing, H_RecoCaloMET   , recoCaloMETLabel_    , recoCaloMETToken_      , kRecmet );
+  }
+  if(_RecoMuons) {
+    getCollection( iEvent, missing, H_RecoMuons     , recoMuonsLabel_      , recoMuonsToken_        , kMuon );
+  }
 
   if (!_isData) {
     ptHat=-1.;
@@ -219,6 +327,30 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
     iEvent,
     HltTree);
 
+  // HLTJetMET //
+  hlt_jetmet_.analyze(    
+    H_HltPfJets,        //ND
+    H_HltPfJetsCorr,    //ND
+    H_HltCaloJets,      //ND
+    H_HltCaloJetsCorr,  //ND
+    H_HltPFMET   , 
+    H_HltPFMETNoMu ,
+    H_HltPFMHT   , 
+    H_HltPFMHTNoMu ,
+    H_HltCaloMET , 
+    H_HltCaloMETClean ,
+    H_HltCaloMHT ,
+    H_RecoPfJets,        //ND
+    H_RecoPfJetsCorr,    //ND
+    H_RecoCaloJets,      //ND
+    H_RecoCaloJetsCorr,  //ND
+    H_RecoPFMET   ,
+    H_RecoCaloMET ,
+    H_RecoMuons ,
+    iSetup,
+    iEvent,
+    HltTree);
+
   evt_header_.analyze(iEvent, HltTree);
 
   if (!_isData) {
@@ -247,6 +379,7 @@ void
 HLTBitAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es)
 {
    hlt_analysis_.beginRun(run, es);
+   hlt_jetmet_  .beginRun(run, es);
 }
 
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.

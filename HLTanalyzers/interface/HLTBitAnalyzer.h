@@ -2,6 +2,7 @@
 
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTInfo.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTJetMET.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,6 +63,7 @@ private:
 
   EventHeader evt_header_;
   HLTInfo     hlt_analysis_;
+  HLTJetMET   hlt_jetmet_;
 
   HLTMCtruth  mct_analysis_;
   RECOVertex  vrt_analysisOffline0_;
@@ -87,6 +89,14 @@ private:
   edm::InputTag VertexTagOffline0_;
   edm::InputTag pileupInfo_;
 
+  // Read HLT and Reco collections //ND
+  edm::InputTag hltPFJetLabel_ , hltPFJetCorrLabel_ , hltCaloJetLabel_ , hltCaloJetCorrLabel_ ;
+  edm::InputTag recoPFJetLabel_ , recoPFJetCorrLabel_ , recoCaloJetLabel_ , recoCaloJetCorrLabel_ ;
+  //
+  edm::InputTag hltPFMETLabel_ , hltPFMETNoMuLabel_ , hltPFMHTLabel_ , hltPFMHTNoMuLabel_ ;
+  edm::InputTag hltCaloMETLabel_ , hltCaloMETCleanLabel_ , hltCaloMHTLabel_ ;
+  edm::InputTag recoPFMETLabel_ , recoMuonsLabel_ , recoCaloMETLabel_ ;
+
   edm::EDGetTokenT<edm::TriggerResults>                  hltresultsToken_;
   edm::EDGetTokenT<GenEventInfoProduct>                  genEventInfoToken_;
 
@@ -108,6 +118,21 @@ private:
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> >         pileupInfoToken_;
   edm::EDGetTokenT<reco::VertexCollection>                  VertexTagOffline0Token_;
 
+  // Read HLT collections //ND
+  edm::EDGetTokenT<reco::PFJetCollection>   hltPFJetToken_   , hltPFJetCorrToken_ ;
+  edm::EDGetTokenT<reco::CaloJetCollection> hltCaloJetToken_ , hltCaloJetCorrToken_ ;
+  edm::EDGetTokenT<reco::PFMETCollection>   hltPFMETToken_   , hltPFMETNoMuToken_ ;
+  edm::EDGetTokenT<reco::METCollection>     hltPFMHTToken_   , hltPFMHTNoMuToken_ ;
+  edm::EDGetTokenT<reco::CaloMETCollection> hltCaloMETToken_ , hltCaloMETCleanToken_ ;
+  edm::EDGetTokenT<reco::METCollection>     hltCaloMHTToken_ ;
+
+  // Read offline collections //ND
+  edm::EDGetTokenT<reco::PFJetCollection>   recoPFJetToken_   , recoPFJetCorrToken_ ;
+  edm::EDGetTokenT<reco::CaloJetCollection> recoCaloJetToken_ , recoCaloJetCorrToken_ ;
+  edm::EDGetTokenT<reco::PFMETCollection>   recoPFMETToken_   ;
+  edm::EDGetTokenT<reco::CaloMETCollection> recoCaloMETToken_ ;
+  edm::EDGetTokenT<reco::MuonCollection>    recoMuonsToken_ ;
+
   int errCnt;
   static int errMax() { return 5; }
 
@@ -115,7 +140,7 @@ private:
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
   bool _UseTFileService;
-  bool _isData;
+  bool _isData, _RecoPFJets, _RecoCaloJets, _RecoPFMET, _RecoCaloMET, _RecoMuons;
 
   double ptHat, weight;
 
