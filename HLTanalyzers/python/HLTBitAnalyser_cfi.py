@@ -51,11 +51,11 @@ hltbitanalysis = cms.EDAnalyzer("HLTBitAnalyzer",
         isData         = cms.untracked.bool(False),
         Monte          = cms.bool(True),
         GenTracks      = cms.bool(True),
-        RecoPFJets     = cms.bool(False),
-        RecoCaloJets   = cms.bool(False),
-        RecoPFMET      = cms.bool(False),
-        RecoCaloMET    = cms.bool(False),
-        RecoMuons      = cms.bool(False)
+        RecoPFJets     = cms.untracked.bool(False),
+        RecoCaloJets   = cms.untracked.bool(False),
+        RecoPFMET      = cms.untracked.bool(False),
+        RecoCaloMET    = cms.untracked.bool(False),
+        RecoMuons      = cms.untracked.bool(False)
     )
                                 
 )
